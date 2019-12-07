@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import * as API from "./apiCommons.js";
-import { Table, Input, Button } from "antd";
+import { Table, Input, Icon, Button, notification } from "antd";
 import "antd/dist/antd.css";
 
-function App() {
+const App = () => {
   let [accounts, setAccounts] = useState([]);
   let [inputValue, onChangeInputValue] = useState("");
   let [key, incrementKey] = useState(0);
@@ -14,9 +14,7 @@ function App() {
       .then(res => {
         return res.json().then(body => setAccounts(_ => body));
       })
-      .catch(err => {
-        console.log(err);
-      });
+      .catch(err => console.log(err));
   }, [key]);
 
   return (
@@ -47,8 +45,11 @@ function App() {
                 accountNumber: `${inputValue}`
               }
             )
-              .then(res => incrementKey(_ => key + 1))
-              .catch(error => console.log(error));
+              .then(res => {
+                incrementKey(_ => key + 1);
+                successNotification();
+              })
+              .catch(error => failureNotification());
           }}
         >
           Add account
@@ -63,9 +64,25 @@ function App() {
       />
     </div>
   );
-}
+};
 
 export default App;
+
+const successNotification = () => {
+  notification.open({
+    message: "Congratulations",
+    description: "Your accout has been successfully saved",
+    icon: <Icon type="smile" style={{ color: "#4ae063" }} />
+  });
+};
+
+const failureNotification = () => {
+  notification.open({
+    message: "Upsss",
+    description: "Failed to save. Try again",
+    icon: <Icon type="warning" style={{ color: "#d93b62" }} />
+  });
+};
 
 const columns = [
   {
