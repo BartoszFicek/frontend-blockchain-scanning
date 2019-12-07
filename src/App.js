@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import * as API from "./apiCommons.js";
+import { Table, Input, Button } from "antd";
+import "antd/dist/antd.css";
 
 function App() {
   let [accounts, setAccounts] = useState([]);
@@ -19,36 +21,61 @@ function App() {
 
   return (
     <div className="App">
-      <header>Zadanie rekrutacyjne trycodenet</header>
-      <div>
-        <input
+      <div className="input-wrapper">
+        <Input
           value={inputValue}
+          placeholder="Input a number"
           onChange={event => {
-            let value = event.target.value;
-            onChangeInputValue(_ => value);
+            const { value } = event.target;
+            const reg = /^-?(0|[1-9][0-9]*)(\.[0-9]*)?$/;
+            if (
+              (!isNaN(value) && reg.test(value)) ||
+              value === "" ||
+              value === "-"
+            ) {
+              onChangeInputValue(_ => value);
+            }
           }}
         />
-        <button
+        <Button
+          disabled={inputValue.length === 0 ? true : false}
+          type="primary"
           onClick={() => {
-            incrementKey(_ => key + 1);
             API.put(
               `http://localhost:8080/put-item?accountNumber=${inputValue}`,
               {
                 accountNumber: `${inputValue}`
               }
             )
-              .then(res => console.log(res))
+              .then(res => incrementKey(_ => key + 1))
               .catch(error => console.log(error));
           }}
         >
-          DODAJ ELEMENT
-        </button>
+          Add account
+        </Button>
       </div>
-      {accounts.map((element, index) => (
-        <div key={`${index}`}>{element.accountNumber}</div>
-      ))}
+      <header>List of scanned accounts</header>
+      <Table
+        pagination={false}
+        className="accounts-table"
+        dataSource={accounts}
+        columns={columns}
+      />
     </div>
   );
 }
 
 export default App;
+
+const columns = [
+  {
+    title: "Id",
+    dataIndex: "id",
+    key: "id"
+  },
+  {
+    title: "Account Number",
+    dataIndex: "accountNumber",
+    key: "accountNumber"
+  }
+];
